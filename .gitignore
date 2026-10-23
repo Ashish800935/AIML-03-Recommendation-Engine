@@ -63,3 +63,9 @@ desktop.ini
 *.bak
 reports/*.html
 reports/*.json
+
+# ----- Phase 2: generated reports (charts + summaries) -----
+# Keep reports/.gitkeep but ignore generated outputs
+reports/*.png
+reports/*.txt
+reports/*.csv

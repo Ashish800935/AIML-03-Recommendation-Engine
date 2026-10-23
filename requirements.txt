@@ -1,12 +1,20 @@
-# Phase 1 — Core dependencies only
-# (TensorFlow, FAISS, Spark, Redis, Airflow, Triton are NOT required yet)
-
-# Data handling
+# ── Phase 1 ───────────────────────────────────────────────────
+# Core data handling
 pandas>=2.0.0
 numpy>=1.26.0
 
 # Testing
 pytest>=7.4.0
 
-# Utilities
-pathlib2>=2.3.7; python_version < "3.4"
+# ── Phase 2 ───────────────────────────────────────────────────
+# Visualisation (EDA charts)
+matplotlib>=3.7.0
+seaborn>=0.13.0
+
+# PySpark — requires Java 11+ installed separately.
+# Install with: pip install pyspark==3.5.7
+# (not auto-installed here because it requires a working JDK)
+# pyspark==3.5.7
+
+# ── Future phases (not yet installed) ─────────────────────────
+# tensorflow-recommenders, faiss-cpu, redis, apache-airflow, tritonclient

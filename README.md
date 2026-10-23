@@ -74,17 +74,21 @@ AIML-03-Recommendation-Engine/
 │
 ├── src/
 │   ├── __init__.py
-│   └── data_loader.py  ← Phase 1: dataset verification utilities
+│   ├── data_loader.py     ← Phase 1: dataset verification utilities
+│   ├── quality_checks.py  ← Phase 2: chunked data quality validation
+│   └── eda.py             ← Phase 2: exploratory data analysis & plotting
 │
 ├── scripts/
-│   └── verify_dataset.py  ← CLI: run dataset verification
+│   ├── verify_dataset.py  ← CLI: Phase 1 dataset verification
+│   └── run_phase2.py      ← CLI: Phase 2 quality checks & EDA runner
 │
 ├── tests/
-│   └── test_data_loader.py ← Phase 1 unit tests
+│   ├── test_data_loader.py ← Phase 1 unit tests (25 tests)
+│   └── test_phase2.py      ← Phase 2 unit tests (27 tests)
 │
 ├── notebooks/          ← Jupyter exploratory notebooks
 ├── models/             ← Trained model artifacts (Git-ignored)
-├── reports/            ← Evaluation reports
+├── reports/            ← Generated EDA charts & summary reports (Git-ignored)
 ├── docs/               ← Architecture docs
 ├── app/                ← Serving API (future phases)
 │
@@ -107,7 +111,7 @@ python -m venv .venv
 # 3. Activate it
 .venv\Scripts\Activate.ps1
 
-# 4. Install Phase 1 dependencies
+# 4. Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -116,7 +120,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running Dataset Verification
+## ▶️ Running Dataset Verification (Phase 1)
 
 ```powershell
 # From the project root, with .venv activated:
@@ -136,6 +140,31 @@ The script will:
 
 ---
 
+## 📊 Running Data Quality & EDA (Phase 2)
+
+```powershell
+# Run both quality checks and full EDA:
+python scripts/run_phase2.py
+
+# Run only quality checks:
+python scripts/run_phase2.py --quality-only
+
+# Run only EDA (charts and distributions):
+python scripts/run_phase2.py --eda-only
+```
+
+Generated outputs in `reports/`:
+- `01_rating_distribution.png` — Distribution across half-star rating buckets (mean: 3.53)
+- `02_ratings_per_user.png` — Log-scale distribution of interactions per user
+- `03_ratings_per_movie.png` — Log-scale distribution of interactions per movie
+- `04_top_rated_movies.png` — Top 20 most-rated movies (Forrest Gump, Shawshank Redemption, etc.)
+- `05_rating_trend_over_time.png` — Monthly average rating and yearly interaction volume
+- `06_genre_distribution.png` — Frequency of each movie genre
+- `split_boundaries.txt` — Chronological cutoffs for 80/10/10 temporal split
+- `phase2_summary.txt` — Full textual statistics summary
+
+---
+
 ## 🧪 Running the Tests
 
 ```powershell
@@ -143,18 +172,20 @@ The script will:
 pytest tests/ -v
 ```
 
-Tests use **temporary files only** — the full MovieLens dataset is **not required** to run them.
+All 52 tests run against lightweight synthetic data — full 25M CSVs are **not required** for testing.
 
 ---
 
 ## 🔒 Dataset Files and Git
 
-Dataset files are excluded from version control via `.gitignore`:
+Dataset files and generated report artifacts are excluded from version control via `.gitignore`:
 
 ```
 data/raw/
 data/processed/
 models/
+reports/*.png
+reports/*.txt
 ```
 
 If you accidentally staged a dataset file, use:
@@ -165,15 +196,18 @@ Then commit the removal before pushing.
 
 ---
 
-## ✅ What Phase 1 Verifies
+## ✅ What Phase 1 & 2 Verify
 
-| Check | Verified |
-|-------|----------|
-| All 6 MovieLens files present | ✅ |
-| Correct column schemas | ✅ |
-| Files are readable by Pandas | ✅ |
-| Sample rows display correctly | ✅ |
-| No dataset files tracked by Git | ✅ |
+| Component | Status | Findings / Metrics |
+|-----------|--------|---------------------|
+| Dataset files present | ✅ | All 6 files present in `data/raw/` |
+| Column schemas | ✅ | Exactly match MovieLens 25M specification |
+| Memory safety | ✅ | Chunked iteration (500k rows/chunk) avoids OOM |
+| Data quality checks | ✅ | Zero duplicate (user, movie) pairs; zero out-of-range ratings |
+| Missing values | ✅ | `ratings.csv` 0 missing; `tags.csv` 16 missing tags; `links.csv` 107 missing tmdbIds |
+| Unique entities | ✅ | 162,541 users, 59,047 movies, 25,000,095 total ratings |
+| Temporal split | ✅ | Train <= 2016-06-25 (80%), Val 2016-06-25–2018-01-04 (10%), Test > 2018-01-04 (10%) |
+| Test suite | ✅ | 52 / 52 unit tests passing |
 
 ## 🚧 What Has NOT Been Implemented Yet
 
@@ -184,10 +218,8 @@ Then commit the removal before pushing.
 - Redis caching / cold-start handling
 - Triton Inference Server deployment
 - Airflow retraining DAG
-- A/B testing framework
+- Online A/B testing
 - Online serving API
-
-These will be added in subsequent phases after this setup is reviewed.
 
 ---
 
@@ -196,9 +228,9 @@ These will be added in subsequent phases after this setup is reviewed.
 | Phase | Description | Status |
 |-------|-------------|--------|
 | **Phase 1** | Project setup & dataset verification | ✅ Complete |
-| Phase 2 | Feature engineering with Pandas/Spark | 🔜 |
-| Phase 3 | Two-tower model training (TFRS) | 🔜 |
-| Phase 4 | FAISS indexing + ranking model | 🔜 |
-| Phase 5 | Redis caching + cold-start handling | 🔜 |
-| Phase 6 | Triton serving + Airflow retraining | 🔜 |
-| Phase 7 | Offline & online evaluation | 🔜 |
+| **Phase 2** | Data quality checks & Exploratory Data Analysis (EDA) | ✅ Complete |
+| Phase 3 | Two-tower candidate retrieval (TFRS + FAISS) | 🔜 Next |
+| Phase 4 | Ranking model (features & DNN reranking) | 🔜 |
+| Phase 5 | Redis caching & cold-start handling | 🔜 |
+| Phase 6 | Triton model serving & Airflow retraining | 🔜 |
+| Phase 7 | Offline evaluation (Recall@K, NDCG@K) & Online A/B test design | 🔜 |
