@@ -1,0 +1,65 @@
+# ============================================================
+# AIML-03-Recommendation-Engine  —  .gitignore
+# ============================================================
+
+# ----- Dataset files (large; never commit to GitHub) --------
+data/raw/
+data/processed/
+
+# ----- Trained model artifacts ------------------------------
+models/
+
+# ----- Python virtual environments -------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# ----- Python cache files -----------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# ----- Distribution / packaging ----------------------------
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+
+# ----- Testing & coverage -----------------------------------
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# ----- Jupyter Notebooks ------------------------------------
+.ipynb_checkpoints/
+*.ipynb
+
+# ----- Environment & secrets --------------------------------
+.env
+.env.*
+*.env
+
+# ----- IDEs & editors ---------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----- OS generated files -----------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- Logs & temporary files ------------------------------
+*.log
+*.tmp
+*.bak
+reports/*.html
+reports/*.json

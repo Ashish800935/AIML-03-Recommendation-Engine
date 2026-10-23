@@ -1,0 +1,12 @@
+# Phase 1 — Core dependencies only
+# (TensorFlow, FAISS, Spark, Redis, Airflow, Triton are NOT required yet)
+
+# Data handling
+pandas>=2.0.0
+numpy>=1.26.0
+
+# Testing
+pytest>=7.4.0
+
+# Utilities
+pathlib2>=2.3.7; python_version < "3.4"
